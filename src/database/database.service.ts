@@ -1,42 +1,8 @@
 import { Injectable } from '@nestjs/common';
-import { UpdateUserDto } from 'src/user/dto/update-user.dto';
+import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { User } from 'src/user/entities/user.entity';
-
-// interface UserData {
-//   id: string; // uuid v4
-//   login: string;
-//   password: string;
-//   version: number; // integer number, increments on update
-//   createdAt: number; // timestamp of creation
-//   updatedAt: number; // timestamp of last update
-// }
-
-// interface Artist {
-//   id: string; // uuid v4
-//   name: string;
-//   grammy: boolean;
-// }
-
-// interface Track {
-//   id: string; // uuid v4
-//   name: string;
-//   artistId: string | null; // refers to Artist
-//   albumId: string | null; // refers to Album
-//   duration: number; // integer number
-// }
-
-// interface Album {
-//   id: string; // uuid v4
-//   name: string;
-//   year: number;
-//   artistId: string | null; // refers to Artist
-// }
-
-// interface Favorites {
-//   artists: string[]; // favorite artists ids
-//   albums: string[]; // favorite albums ids
-//   tracks: string[]; // favorite tracks ids
-// }
+import { removeObjField, unixTimeStampSec } from 'src/utils/utils';
+import { v4 as uuidv4 } from 'uuid';
 
 interface Data {
   user: User[];
@@ -65,28 +31,52 @@ export class DatabaseService {
     favorites: [],
   };
 
-  findAll() {
+  createUser(user: CreateUserDto): Partial<User> {
+    const timeStamp = unixTimeStampSec();
+    const newUser = {
+      ...user,
+      id: uuidv4(),
+      version: 1,
+      createdAt: timeStamp,
+      updatedAt: timeStamp,
+    };
+
+    this.data.user.push(newUser);
+    return removeObjField(newUser, 'password');
+  }
+
+  findAllUsers() {
     return this.data.user;
   }
 
-  findOne(id: string) {
+  findOneUser(id: string) {
     return this.data.user.find((user) => user.id === id) || null;
   }
 
   updateUser(id: User['id'], user: Partial<User>) {
     const oldUser = this.data.user.find((user) => user.id === id);
-    const userById: User = {
+    const updatedUser: User = {
       ...oldUser,
       ...user,
       version: oldUser.version + 1,
-      updatedAt: Math.floor(Date.now() / 1000),
+      updatedAt: unixTimeStampSec() + 1,
     };
 
     this.data.user = this.data.user.map((user) => {
-      if (user.id === id) return userById;
+      if (user.id === id) return updatedUser;
       return user;
     });
 
-    return userById;
+    return removeObjField(updatedUser, 'password');
+  }
+
+  deleteUser(id: User['id']) {
+    const deletedUserIdx = this.data.user.findIndex((user) => user.id === id);
+    if (deletedUserIdx !== -1) {
+      const deletedUser = this.data.user.splice(deletedUserIdx, 1);
+
+      return removeObjField(deletedUser, 'password');
+    }
+    return null;
   }
 }

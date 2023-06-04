@@ -12,21 +12,21 @@ export class UserService {
   constructor(private db: DatabaseService) {}
 
   create(createUserDto: CreateUserDto) {
-    return 'This action adds a new user';
+    return this.db.createUser(createUserDto);
   }
 
   findAll() {
-    return this.db.findAll();
+    return this.db.findAllUsers();
   }
 
   findOne(id: string) {
-    const userById = this.db.findOne(id);
+    const userById = this.db.findOneUser(id);
     if (userById) return userById;
     throw new NotFoundException('User not found');
   }
 
   update(id: string, updateUserDto: UpdateUserDto) {
-    const userById = this.db.findOne(id);
+    const userById = this.db.findOneUser(id);
     if (!userById) throw new NotFoundException('User not found');
 
     if (userById.password !== updateUserDto.oldPassword)
@@ -35,10 +35,17 @@ export class UserService {
     const updatedUser = this.db.updateUser(id, {
       password: updateUserDto.newPassword,
     });
-    if (updatedUser) return updatedUser;
+
+    console.log(`user.service.ts - line: 41 ->> updatedUser`, updatedUser);
+    return updatedUser;
   }
 
   remove(id: string) {
-    return `This action removes a #${id} user`;
+    const deletedUser = this.db.deleteUser(id);
+    if (!deletedUser) {
+      throw new NotFoundException('User not found');
+    } else {
+      return deletedUser;
+    }
   }
 }
