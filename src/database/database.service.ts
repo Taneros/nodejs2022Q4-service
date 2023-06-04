@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Track } from 'src/tracks/entities/track.entity';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { User } from 'src/user/entities/user.entity';
 import { removeObjField, unixTimeStampSec } from 'src/utils/utils';
@@ -6,7 +7,7 @@ import { v4 as uuidv4 } from 'uuid';
 
 interface Data {
   user: User[];
-  artist: unknown;
+  artist: Track[];
   track: unknown;
   album: unknown;
   favorites: unknown;
