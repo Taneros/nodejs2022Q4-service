@@ -1,26 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { DatabaseService } from 'src/database/database.service';
 import { CreateArtistDto } from './dto/create-artist.dto';
 import { UpdateArtistDto } from './dto/update-artist.dto';
 
 @Injectable()
 export class ArtistService {
+  constructor(private db: DatabaseService) {}
+
   create(createArtistDto: CreateArtistDto) {
-    return 'This action adds a new artist';
+    return this.db.createArtist(createArtistDto);
   }
 
   findAll() {
-    return `This action returns all artist`;
+    return this.db.findAllArtists();
   }
 
   findOne(id: string) {
-    return `This action returns a #${id} artist`;
+    const artistById = this.db.findOneArtist(id);
+    if (artistById) return artistById;
+    throw new NotFoundException('User not found');
   }
 
   update(id: string, updateArtistDto: UpdateArtistDto) {
-    return `This action updates a #${id} artist`;
+    const artistById = this.db.findOneArtist(id);
+    if (!artistById) throw new NotFoundException('Artist not found');
+
+    const updatedArtist = this.db.updateArtist(id, updateArtistDto);
+
+    return updatedArtist;
   }
 
   remove(id: string) {
-    return `This action removes a #${id} artist`;
+    const deletedArtist = this.db.deleteArtist(id);
+    if (!deletedArtist) {
+      throw new NotFoundException('Artist not found');
+    } else {
+      return deletedArtist;
+    }
   }
 }

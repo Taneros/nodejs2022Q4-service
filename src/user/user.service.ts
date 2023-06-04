@@ -36,7 +36,6 @@ export class UserService {
       password: updateUserDto.newPassword,
     });
 
-    console.log(`user.service.ts - line: 41 ->> updatedUser`, updatedUser);
     return updatedUser;
   }
 

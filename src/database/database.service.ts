@@ -1,12 +1,18 @@
 import { Injectable } from '@nestjs/common';
+import { CreateArtistDto } from 'src/artist/dto/create-artist.dto';
+import { Artist } from 'src/artist/entities/artist.entity';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { User } from 'src/user/entities/user.entity';
 import { removeObjField, unixTimeStampSec } from 'src/utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 
+// interface ArtistData {
+//   [x: string]: Artist[];
+// }
+
 interface Data {
   user: User[];
-  artist: unknown;
+  artist: Artist[];
   track: unknown;
   album: unknown;
   favorites: unknown;
@@ -25,8 +31,14 @@ export class DatabaseService {
         updatedAt: 1685720272,
       },
     ],
+    artist: [
+      {
+        id: 'fdcf03dc-cf77-4695-9cf1-1ef850975d02',
+        name: 'U2',
+        grammy: true,
+      },
+    ],
     album: [],
-    artist: [],
     track: [],
     favorites: [],
   };
@@ -76,6 +88,51 @@ export class DatabaseService {
       const deletedUser = this.data.user.splice(deletedUserIdx, 1);
 
       return removeObjField(deletedUser, 'password');
+    }
+    return null;
+  }
+
+  createArtist(createArtistDto: CreateArtistDto): Partial<Artist> {
+    const newArtist: Artist = {
+      id: uuidv4(),
+      ...createArtistDto,
+    };
+
+    this.data.artist.push(newArtist);
+    return newArtist;
+  }
+
+  findAllArtists() {
+    return this.data.artist;
+  }
+
+  findOneArtist(id: Artist['id']) {
+    return this.data.artist.find((artist) => artist.id === id) || null;
+  }
+
+  updateArtist(id: Artist['id'], artist: Partial<Artist>) {
+    const oldArtist = this.data.artist.find((artist) => artist.id === id);
+    const updatedArtist: Artist = {
+      ...oldArtist,
+      ...artist,
+    };
+
+    this.data.artist = this.data.artist.map((artist) => {
+      if (artist.id === id) return updatedArtist;
+      return artist;
+    });
+
+    return this.updateArtist;
+  }
+
+  deleteArtist(id: Artist['id']) {
+    const deletedArtistIdx = this.data.artist.findIndex(
+      (artist) => artist.id === id,
+    );
+    if (deletedArtistIdx !== -1) {
+      const deletedArtist = this.data.artist.splice(deletedArtistIdx, 1);
+
+      return deletedArtist;
     }
     return null;
   }
