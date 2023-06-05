@@ -1,26 +1,41 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { DatabaseService } from 'src/database/database.service';
 import { CreateAlbumDto } from './dto/create-album.dto';
 import { UpdateAlbumDto } from './dto/update-album.dto';
 
 @Injectable()
 export class AlbumService {
+  constructor(private db: DatabaseService) {}
+
   create(createAlbumDto: CreateAlbumDto) {
-    return 'This action adds a new album';
+    return this.db.createAlbum(createAlbumDto);
   }
 
   findAll() {
-    return `This action returns all album`;
+    return this.db.findAllAlbums();
   }
 
   findOne(id: string) {
-    return `This action returns a #${id} album`;
+    const albumById = this.db.findOneAlbum(id);
+    if (albumById) return albumById;
+    throw new NotFoundException('Album not found');
   }
 
   update(id: string, updateAlbumDto: UpdateAlbumDto) {
-    return `This action updates a #${id} album`;
+    const albumById = this.db.findOneAlbum(id);
+    if (!albumById) throw new NotFoundException('Album not found');
+
+    const updatedAlbum = this.db.updateAlbum(id, updateAlbumDto);
+
+    return updatedAlbum;
   }
 
   remove(id: string) {
-    return `This action removes a #${id} album`;
+    const deletedAlbum = this.db.deleteAlbum(id);
+    if (!deletedAlbum) {
+      throw new NotFoundException('Album not found');
+    } else {
+      return deletedAlbum;
+    }
   }
 }

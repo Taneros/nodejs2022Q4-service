@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { CreateAlbumDto } from 'src/album/dto/create-album.dto';
 import { Album } from 'src/album/entities/album.entity';
 import { CreateArtistDto } from 'src/artist/dto/create-artist.dto';
 import { Artist } from 'src/artist/entities/artist.entity';
@@ -35,11 +36,18 @@ export class DatabaseService {
         grammy: true,
       },
     ],
-    album: [],
+    album: [
+      {
+        id: 'deef381f-b850-444c-9b29-35e90da68348',
+        name: 'With Or Without You',
+        year: 1987,
+        artistId: 'fdcf03dc-cf77-4695-9cf1-1ef850975d02',
+      },
+    ],
     track: [],
     favorites: [],
   };
-
+  // *** User ***
   createUser(user: CreateUserDto): Partial<User> {
     const timeStamp = unixTimeStampSec();
     const newUser = {
@@ -88,7 +96,7 @@ export class DatabaseService {
     }
     return null;
   }
-
+  // *** Artist ***
   createArtist(createArtistDto: CreateArtistDto): Partial<Artist> {
     const newArtist: Artist = {
       id: uuidv4(),
@@ -119,7 +127,7 @@ export class DatabaseService {
       return artist;
     });
 
-    return this.updateArtist;
+    return updatedArtist;
   }
 
   deleteArtist(id: Artist['id']) {
@@ -133,48 +141,58 @@ export class DatabaseService {
     }
     return null;
   }
-  // 
-  createAlbum(createArtistDto: CreateArtistDto): Partial<Artist> {
-    const newArtist: Artist = {
+  // *** Album ***
+  createAlbum(createAlbumDto: CreateAlbumDto): Partial<Album> {
+    const findArtistId: CreateArtistDto['name'] =
+      this.data.artist.find((artist) => artist.name === createAlbumDto.artistId)
+        ?.id || null;
+
+    const newAlbum: Album = {
       id: uuidv4(),
-      ...createArtistDto,
+      ...createAlbumDto,
+      artistId: findArtistId,
     };
 
-    this.data.artist.push(newArtist);
-    return newArtist;
+    this.data.album.push(newAlbum);
+    return newAlbum;
   }
 
   findAllAlbums() {
-    return this.data.artist;
+    return this.data.album;
   }
 
-  findOneAlbum(id: Artist['id']) {
-    return this.data.artist.find((artist) => artist.id === id) || null;
+  findOneAlbum(id: Album['id']) {
+    return this.data.album.find((album) => album.id === id) || null;
   }
 
-  updateAlbum(id: Artist['id'], artist: Partial<Artist>) {
-    const oldArtist = this.data.artist.find((artist) => artist.id === id);
-    const updatedArtist: Artist = {
-      ...oldArtist,
-      ...artist,
+  updateAlbum(id: Album['id'], album: Partial<Album>) {
+    const oldAlbum = this.data.album.find((album) => album.id === id);
+    const findArtistId: CreateArtistDto['name'] =
+      this.data.artist.find((artist) => artist.name === album.artistId)?.id ||
+      null;
+
+    const updatedAlbum: Album = {
+      ...oldAlbum,
+      ...album,
+      artistId: findArtistId,
     };
 
-    this.data.artist = this.data.artist.map((artist) => {
-      if (artist.id === id) return updatedArtist;
-      return artist;
+    this.data.album = this.data.album.map((album) => {
+      if (album.id === id) return updatedAlbum;
+      return album;
     });
 
-    return this.updateArtist;
+    return updatedAlbum;
   }
 
-  deleteAlbum(id: Artist['id']) {
-    const deletedArtistIdx = this.data.artist.findIndex(
-      (artist) => artist.id === id,
+  deleteAlbum(id: Album['id']) {
+    const deletedAlbumIdx = this.data.album.findIndex(
+      (album) => album.id === id,
     );
-    if (deletedArtistIdx !== -1) {
-      const deletedArtist = this.data.artist.splice(deletedArtistIdx, 1);
+    if (deletedAlbumIdx !== -1) {
+      const deletedAlbum = this.data.album.splice(deletedAlbumIdx, 1);
 
-      return deletedArtist;
+      return deletedAlbum;
     }
     return null;
   }
