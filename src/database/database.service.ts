@@ -1,4 +1,5 @@
 import { Injectable } from '@nestjs/common';
+import { Album } from 'src/album/entities/album.entity';
 import { CreateArtistDto } from 'src/artist/dto/create-artist.dto';
 import { Artist } from 'src/artist/entities/artist.entity';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
@@ -6,15 +7,11 @@ import { User } from 'src/user/entities/user.entity';
 import { removeObjField, unixTimeStampSec } from 'src/utils/utils';
 import { v4 as uuidv4 } from 'uuid';
 
-// interface ArtistData {
-//   [x: string]: Artist[];
-// }
-
 interface Data {
   user: User[];
   artist: Artist[];
   track: unknown;
-  album: unknown;
+  album: Album[];
   favorites: unknown;
 }
 
@@ -126,6 +123,51 @@ export class DatabaseService {
   }
 
   deleteArtist(id: Artist['id']) {
+    const deletedArtistIdx = this.data.artist.findIndex(
+      (artist) => artist.id === id,
+    );
+    if (deletedArtistIdx !== -1) {
+      const deletedArtist = this.data.artist.splice(deletedArtistIdx, 1);
+
+      return deletedArtist;
+    }
+    return null;
+  }
+  // 
+  createAlbum(createArtistDto: CreateArtistDto): Partial<Artist> {
+    const newArtist: Artist = {
+      id: uuidv4(),
+      ...createArtistDto,
+    };
+
+    this.data.artist.push(newArtist);
+    return newArtist;
+  }
+
+  findAllAlbums() {
+    return this.data.artist;
+  }
+
+  findOneAlbum(id: Artist['id']) {
+    return this.data.artist.find((artist) => artist.id === id) || null;
+  }
+
+  updateAlbum(id: Artist['id'], artist: Partial<Artist>) {
+    const oldArtist = this.data.artist.find((artist) => artist.id === id);
+    const updatedArtist: Artist = {
+      ...oldArtist,
+      ...artist,
+    };
+
+    this.data.artist = this.data.artist.map((artist) => {
+      if (artist.id === id) return updatedArtist;
+      return artist;
+    });
+
+    return this.updateArtist;
+  }
+
+  deleteAlbum(id: Artist['id']) {
     const deletedArtistIdx = this.data.artist.findIndex(
       (artist) => artist.id === id,
     );
