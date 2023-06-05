@@ -44,4 +44,10 @@ export class FavsController {
   removeArtist(@Param('id', ParseUUIDPipe) id: string) {
     return this.favsService.removeArtist(id);
   }
+
+  @Delete('album/:id')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  removeAlbum(@Param('id', ParseUUIDPipe) id: string) {
+    return this.favsService.removeAlbum(id);
+  }
 }

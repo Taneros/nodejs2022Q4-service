@@ -350,4 +350,11 @@ export class DatabaseService {
     );
     return this.data.favorites.artists.splice(findFavoriteArtistIdx, 1);
   }
+
+  deleteFavoriteAlbum(id: Album['id']) {
+    const findFavoriteAlbumIdx = this.data.favorites.albums.findIndex(
+      (album) => album.id === id,
+    );
+    return this.data.favorites.albums.splice(findFavoriteAlbumIdx, 1);
+  }
 }
