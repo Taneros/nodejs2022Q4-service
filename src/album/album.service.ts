@@ -25,6 +25,7 @@ export class AlbumService {
     const albumById = this.db.findOneAlbum(id);
     if (!albumById) throw new NotFoundException('Album not found');
     const updatedAlbum = this.db.updateAlbum(id, updateAlbumDto);
+    console.log(`album.service.ts - line: 28 ->> updatedAlbum`, updatedAlbum);
     return updatedAlbum;
   }
 

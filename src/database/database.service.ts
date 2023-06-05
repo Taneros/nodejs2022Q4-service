@@ -63,9 +63,12 @@ export class DatabaseService {
       },
     ],
     favorites: {
-      artists: [{ id: 'fdcf03dc-cf77-4695-9cf1-1ef850975d02' }],
-      albums: [{ id: 'deef381f-b850-444c-9b29-35e90da68348' }],
-      tracks: [{ id: 'fff32e1c-3477-4ea0-905d-fffb6fdc38b4' }],
+      // artists: [{ id: 'fdcf03dc-cf77-4695-9cf1-1ef850975d02' }],
+      // albums: [{ id: 'deef381f-b850-444c-9b29-35e90da68348' }],
+      // tracks: [{ id: 'fff32e1c-3477-4ea0-905d-fffb6fdc38b4' }],
+      artists: [],
+      albums: [],
+      tracks: [],
     },
   };
   // *** User ***
@@ -157,21 +160,28 @@ export class DatabaseService {
     );
     if (deletedArtistIdx !== -1) {
       const deletedArtist = this.data.artist.splice(deletedArtistIdx, 1);
-
+      //delete from favorites
+      if (this.findOneFavorite(id, 'artists')) this.deleteFavoriteArtist(id);
+      //delete from albums put null
+      this.data.album = this.data.album.map((album) => {
+        if (album.artistId === id) return { ...album, artistId: null };
+        return album;
+      });
+      //delete from tracks put null
+      this.data.track = this.data.track.map((track) => {
+        if (track.artistId === id) return { ...track, artistId: null };
+        return track;
+      });
       return deletedArtist;
     }
     return null;
   }
+
   // *** Album ***
   createAlbum(createAlbumDto: CreateAlbumDto): Partial<Album> {
-    const findArtistId: CreateArtistDto['name'] =
-      this.data.artist.find((artist) => artist.name === createAlbumDto.artistId)
-        ?.id || null;
-
     const newAlbum: Album = {
       id: uuidv4(),
       ...createAlbumDto,
-      artistId: findArtistId,
     };
 
     this.data.album.push(newAlbum);
@@ -188,14 +198,10 @@ export class DatabaseService {
 
   updateAlbum(id: Album['id'], album: Partial<Album>) {
     const oldAlbum = this.data.album.find((album) => album.id === id);
-    const findArtistId: string | null =
-      this.data.artist.find((artist) => artist.name === album.artistId)?.id ||
-      null;
 
     const updatedAlbum: Album = {
       ...oldAlbum,
       ...album,
-      artistId: findArtistId,
     };
 
     this.data.album = this.data.album.map((album) => {
@@ -211,8 +217,18 @@ export class DatabaseService {
       (album) => album.id === id,
     );
     if (deletedAlbumIdx !== -1) {
+      console.log(`database.service.ts - line: 224 ->> DELETE ALBUM`);
       const deletedAlbum = this.data.album.splice(deletedAlbumIdx, 1);
-
+      //delete from favorite
+      if (this.findOneFavorite(id, 'albums')) this.deleteFavoriteAlbum(id);
+      //delete from tracks
+      this.data.track = this.data.track.map((track) => {
+        if (track.albumId === id) {
+          console.log(`database.service.ts - line: 233 ->> `, this.data.track);
+          return { ...track, albumId: null };
+        }
+        return track;
+      });
       return deletedAlbum;
     }
     return null;
@@ -220,19 +236,9 @@ export class DatabaseService {
 
   // *** Track ***
   createTrack(createTrackDto: CreateTrackDto): Partial<Track> {
-    const findTrackArtistId: string | null =
-      this.data.artist.find((artist) => artist.name === createTrackDto.artistId)
-        ?.id || null;
-
-    const findTrackAlbumId: string | null =
-      this.data.album.find((album) => album.name === createTrackDto.albumId)
-        ?.id || null;
-
     const newTrack: Track = {
       id: uuidv4(),
       ...createTrackDto,
-      artistId: findTrackArtistId,
-      albumId: findTrackAlbumId,
     };
 
     this.data.track.push(newTrack);
@@ -280,7 +286,7 @@ export class DatabaseService {
     );
     if (deletedTrackIdx !== -1) {
       const deletedTrack = this.data.track.splice(deletedTrackIdx, 1);
-
+      if (this.findOneFavorite(id, 'tracks')) this.deleteFavoriteTrack(id);
       return deletedTrack;
     }
     return null;
@@ -297,19 +303,19 @@ export class DatabaseService {
     );
 
     const favouriteAlbumsIds = this.data.favorites.albums.map(
-      (artist) => artist.id,
+      (album) => album.id,
     );
 
-    const favouriteAlbums = this.data.album.filter((artist) =>
-      favouriteAlbumsIds.includes(artist.id),
+    const favouriteAlbums = this.data.album.filter((album) =>
+      favouriteAlbumsIds.includes(album.id),
     );
 
     const favouriteTracksIds = this.data.favorites.tracks.map(
-      (artist) => artist.id,
+      (track) => track.id,
     );
 
-    const favouriteTracks = this.data.track.filter((artist) =>
-      favouriteTracksIds.includes(artist.id),
+    const favouriteTracks = this.data.track.filter((track) =>
+      favouriteTracksIds.includes(track.id),
     );
 
     const userFavorites = {
