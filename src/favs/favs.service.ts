@@ -44,4 +44,10 @@ export class FavsService {
     if (!albumById) throw new NotFoundException('Album is not favorite');
     return this.db.deleteFavoriteAlbum(id);
   }
+
+  removeTrack(id: string) {
+    const trackById = this.db.findOneFavorite(id, 'tracks');
+    if (!trackById) throw new NotFoundException('Track is not favorite');
+    return this.db.deleteFavoriteTrack(id);
+  }
 }

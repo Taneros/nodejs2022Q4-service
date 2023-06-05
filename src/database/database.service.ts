@@ -357,4 +357,11 @@ export class DatabaseService {
     );
     return this.data.favorites.albums.splice(findFavoriteAlbumIdx, 1);
   }
+
+  deleteFavoriteTrack(id: Track['id']) {
+    const findFavoriteAlbumIdx = this.data.favorites.tracks.findIndex(
+      (track) => track.id === id,
+    );
+    return this.data.favorites.tracks.splice(findFavoriteAlbumIdx, 1);
+  }
 }
