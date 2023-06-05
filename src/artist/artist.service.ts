@@ -18,7 +18,7 @@ export class ArtistService {
   findOne(id: string) {
     const artistById = this.db.findOneArtist(id);
     if (artistById) return artistById;
-    throw new NotFoundException('User not found');
+    throw new NotFoundException('Artist not found');
   }
 
   update(id: string, updateArtistDto: UpdateArtistDto) {

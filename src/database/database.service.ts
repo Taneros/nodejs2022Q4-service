@@ -217,6 +217,7 @@ export class DatabaseService {
     }
     return null;
   }
+
   // *** Track ***
   createTrack(createTrackDto: CreateTrackDto): Partial<Track> {
     const findTrackArtistId: string | null =
@@ -284,6 +285,7 @@ export class DatabaseService {
     }
     return null;
   }
+
   // *** Favorites ***
   findAllFavorite() {
     const favouriteArtistsIds = this.data.favorites.artists.map(
@@ -317,5 +319,20 @@ export class DatabaseService {
     };
 
     return userFavorites;
+  }
+
+  createFavoriteArtist(id: Artist['id']) {
+    this.data.favorites.artists.push({ id });
+    return this.data.favorites;
+  }
+
+  createFavoriteAlbum(id: Album['id']) {
+    this.data.favorites.albums.push({ id });
+    return this.data.favorites;
+  }
+
+  createFavoriteTrack(id: Track['id']) {
+    this.data.favorites.tracks.push({ id });
+    return this.data.favorites;
   }
 }
