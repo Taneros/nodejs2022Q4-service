@@ -3,6 +3,8 @@ import { CreateAlbumDto } from 'src/album/dto/create-album.dto';
 import { Album } from 'src/album/entities/album.entity';
 import { CreateArtistDto } from 'src/artist/dto/create-artist.dto';
 import { Artist } from 'src/artist/entities/artist.entity';
+import { CreateTrackDto } from 'src/track/dto/create-track.dto';
+import { Track } from 'src/track/entities/track.entity';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
 import { User } from 'src/user/entities/user.entity';
 import { removeObjField, unixTimeStampSec } from 'src/utils/utils';
@@ -11,7 +13,7 @@ import { v4 as uuidv4 } from 'uuid';
 interface Data {
   user: User[];
   artist: Artist[];
-  track: unknown;
+  track: Track[];
   album: Album[];
   favorites: unknown;
 }
@@ -39,12 +41,20 @@ export class DatabaseService {
     album: [
       {
         id: 'deef381f-b850-444c-9b29-35e90da68348',
-        name: 'With Or Without You',
+        name: 'The Joshua Tree',
         year: 1987,
         artistId: 'fdcf03dc-cf77-4695-9cf1-1ef850975d02',
       },
     ],
-    track: [],
+    track: [
+      {
+        id: 'fff32e1c-3477-4ea0-905d-fffb6fdc38b4',
+        name: 'With or Without You',
+        artistId: 'fdcf03dc-cf77-4695-9cf1-1ef850975d02',
+        albumId: 'deef381f-b850-444c-9b29-35e90da68348',
+        duration: 296,
+      },
+    ],
     favorites: [],
   };
   // *** User ***
@@ -167,7 +177,7 @@ export class DatabaseService {
 
   updateAlbum(id: Album['id'], album: Partial<Album>) {
     const oldAlbum = this.data.album.find((album) => album.id === id);
-    const findArtistId: CreateArtistDto['name'] =
+    const findArtistId: string | null =
       this.data.artist.find((artist) => artist.name === album.artistId)?.id ||
       null;
 
@@ -193,6 +203,73 @@ export class DatabaseService {
       const deletedAlbum = this.data.album.splice(deletedAlbumIdx, 1);
 
       return deletedAlbum;
+    }
+    return null;
+  }
+  // *** Track ***
+  createTrack(createTrackDto: CreateTrackDto): Partial<Track> {
+    const findTrackArtistId: string | null =
+      this.data.artist.find((artist) => artist.name === createTrackDto.artistId)
+        ?.id || null;
+
+    const findTrackAlbumId: string | null =
+      this.data.album.find((album) => album.name === createTrackDto.albumId)
+        ?.id || null;
+
+    const newTrack: Track = {
+      id: uuidv4(),
+      ...createTrackDto,
+      artistId: findTrackArtistId,
+      albumId: findTrackAlbumId,
+    };
+
+    this.data.track.push(newTrack);
+
+    return newTrack;
+  }
+
+  findAllTracks() {
+    return this.data.track;
+  }
+
+  findOneTrack(id: Track['id']) {
+    return this.data.track.find((track) => track.id === id) || null;
+  }
+
+  updateTrack(id: Track['id'], album: Partial<Track>) {
+    const oldTrack = this.data.track.find((track) => track.id === id);
+
+    const findTrackArtistId: string | null =
+      this.data.artist.find((artist) => artist.name === album.artistId)?.id ||
+      null;
+
+    const findTrackAlbumId: string | null =
+      this.data.album.find((albumData) => albumData.name === album.albumId)
+        ?.id || null;
+
+    const updatedAlbum: Track = {
+      ...oldTrack,
+      ...album,
+      artistId: findTrackArtistId,
+      albumId: findTrackAlbumId,
+    };
+
+    this.data.track = this.data.track.map((track) => {
+      if (track.id === id) return updatedAlbum;
+      return track;
+    });
+
+    return updatedAlbum;
+  }
+
+  deleteTrack(id: Track['id']) {
+    const deletedTrackIdx = this.data.track.findIndex(
+      (track) => track.id === id,
+    );
+    if (deletedTrackIdx !== -1) {
+      const deletedTrack = this.data.track.splice(deletedTrackIdx, 1);
+
+      return deletedTrack;
     }
     return null;
   }
