@@ -4,8 +4,6 @@ import {
   UnprocessableEntityException,
 } from '@nestjs/common';
 import { DatabaseService } from 'src/database/database.service';
-import { CreateFavDto } from './dto/create-fav.dto';
-import { UpdateFavDto } from './dto/update-fav.dto';
 
 @Injectable()
 export class FavsService {

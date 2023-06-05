@@ -19,12 +19,6 @@ interface Data {
   favorites: Fav;
 }
 
-interface FavoritesReturnData {
-  artists: Data['artist'];
-  albums: Data['album'];
-  tracks: Data['track'];
-}
-
 @Injectable()
 export class DatabaseService {
   data: Data = {
