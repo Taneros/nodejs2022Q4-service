@@ -9,6 +9,7 @@ import {
   ParseUUIDPipe,
   HttpCode,
   HttpStatus,
+  Put,
 } from '@nestjs/common';
 import { FavsService } from './favs.service';
 import { CreateFavDto } from './dto/create-fav.dto';
@@ -18,27 +19,24 @@ import { UpdateFavDto } from './dto/update-fav.dto';
 export class FavsController {
   constructor(private readonly favsService: FavsService) {}
 
-  @Post()
-  create(@Body() createFavDto: CreateFavDto) {
-    return this.favsService.create(createFavDto);
+  @Post('artist/:id')
+  createArtist(@Param('id', ParseUUIDPipe) id: string) {
+    return this.favsService.createArtist(id);
+  }
+
+  @Post('track/:id')
+  createTrack(@Param('id', ParseUUIDPipe) id: string) {
+    return this.favsService.createTrack(id);
+  }
+
+  @Post('album/:id')
+  createAlbum(@Param('id', ParseUUIDPipe) id: string) {
+    return this.favsService.createAlbum(id);
   }
 
   @Get()
   findAll() {
     return this.favsService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id', ParseUUIDPipe) id: string) {
-    return this.favsService.findOne(id);
-  }
-
-  @Patch(':id')
-  update(
-    @Param('id', ParseUUIDPipe) id: string,
-    @Body() updateFavDto: UpdateFavDto,
-  ) {
-    return this.favsService.update(id, updateFavDto);
   }
 
   @Delete(':id')

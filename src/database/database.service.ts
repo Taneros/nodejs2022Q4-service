@@ -19,6 +19,12 @@ interface Data {
   favorites: Fav;
 }
 
+interface FavoritesReturnData {
+  artists: Data['artist'];
+  albums: Data['album'];
+  tracks: Data['track'];
+}
+
 @Injectable()
 export class DatabaseService {
   data: Data = {
@@ -57,9 +63,9 @@ export class DatabaseService {
       },
     ],
     favorites: {
-      artists: [],
-      albums: [],
-      tracks: [],
+      artists: [{ id: 'fdcf03dc-cf77-4695-9cf1-1ef850975d02' }],
+      albums: [{ id: 'deef381f-b850-444c-9b29-35e90da68348' }],
+      tracks: [{ id: 'fff32e1c-3477-4ea0-905d-fffb6fdc38b4' }],
     },
   };
   // *** User ***
@@ -277,5 +283,39 @@ export class DatabaseService {
       return deletedTrack;
     }
     return null;
+  }
+  // *** Favorites ***
+  findAllFavorite() {
+    const favouriteArtistsIds = this.data.favorites.artists.map(
+      (artist) => artist.id,
+    );
+
+    const favouriteArtists = this.data.artist.filter((artist) =>
+      favouriteArtistsIds.includes(artist.id),
+    );
+
+    const favouriteAlbumsIds = this.data.favorites.albums.map(
+      (artist) => artist.id,
+    );
+
+    const favouriteAlbums = this.data.album.filter((artist) =>
+      favouriteAlbumsIds.includes(artist.id),
+    );
+
+    const favouriteTracksIds = this.data.favorites.tracks.map(
+      (artist) => artist.id,
+    );
+
+    const favouriteTracks = this.data.track.filter((artist) =>
+      favouriteTracksIds.includes(artist.id),
+    );
+
+    const userFavorites = {
+      artists: [...favouriteArtists],
+      albums: [...favouriteAlbums],
+      tracks: [...favouriteTracks],
+    };
+
+    return userFavorites;
   }
 }

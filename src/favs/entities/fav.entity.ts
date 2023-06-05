@@ -3,7 +3,7 @@ import { Artist } from 'src/artist/entities/artist.entity';
 import { Track } from 'src/track/entities/track.entity';
 
 export class Fav {
-  artists: Artist[]; // favorite artists ids
-  albums: Album[]; // favorite albums ids
-  tracks: Track[]; // favorite tracks ids
+  artists: Record<string, string>[]; // favorite artists ids
+  albums: Record<string, string>[]; // favorite albums ids
+  tracks: Record<string, string>[]; // favorite tracks ids
 }
