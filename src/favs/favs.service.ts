@@ -33,7 +33,9 @@ export class FavsService {
     return this.db.findAllFavorite();
   }
 
-  remove(id: string) {
-    return `This action removes a #${id} fav`;
+  removeArtist(id: string) {
+    const artistById = this.db.findOneFavorite(id, 'artists');
+    if (!artistById) throw new NotFoundException('Artist is not favorite');
+    return this.db.deleteFavoriteArtist(id);
   }
 }

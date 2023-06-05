@@ -335,4 +335,19 @@ export class DatabaseService {
     this.data.favorites.tracks.push({ id });
     return this.data.favorites;
   }
+
+  //delete
+  findOneFavorite(id: string, favorite: keyof Fav) {
+    const findFavorite = this.data.favorites[favorite].find(
+      (favorite) => favorite.id === id,
+    );
+    return findFavorite;
+  }
+
+  deleteFavoriteArtist(id: Artist['id']) {
+    const findFavoriteArtistIdx = this.data.favorites.artists.findIndex(
+      (artist) => artist.id === id,
+    );
+    return this.data.favorites.artists.splice(findFavoriteArtistIdx, 1);
+  }
 }

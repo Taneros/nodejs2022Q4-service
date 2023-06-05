@@ -39,9 +39,9 @@ export class FavsController {
     return this.favsService.findAll();
   }
 
-  @Delete(':id')
+  @Delete('artist/:id')
   @HttpCode(HttpStatus.NO_CONTENT)
-  remove(@Param('id', ParseUUIDPipe) id: string) {
-    return this.favsService.remove(id);
+  removeArtist(@Param('id', ParseUUIDPipe) id: string) {
+    return this.favsService.removeArtist(id);
   }
 }
