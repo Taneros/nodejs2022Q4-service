@@ -3,6 +3,7 @@ import { CreateAlbumDto } from 'src/album/dto/create-album.dto';
 import { Album } from 'src/album/entities/album.entity';
 import { CreateArtistDto } from 'src/artist/dto/create-artist.dto';
 import { Artist } from 'src/artist/entities/artist.entity';
+import { Fav } from 'src/favs/entities/fav.entity';
 import { CreateTrackDto } from 'src/track/dto/create-track.dto';
 import { Track } from 'src/track/entities/track.entity';
 import { CreateUserDto } from 'src/user/dto/create-user.dto';
@@ -15,7 +16,7 @@ interface Data {
   artist: Artist[];
   track: Track[];
   album: Album[];
-  favorites: unknown;
+  favorites: Fav;
 }
 
 @Injectable()
@@ -55,7 +56,11 @@ export class DatabaseService {
         duration: 296,
       },
     ],
-    favorites: [],
+    favorites: {
+      artists: [],
+      albums: [],
+      tracks: [],
+    },
   };
   // *** User ***
   createUser(user: CreateUserDto): Partial<User> {
